@@ -6,16 +6,22 @@ const bot = require("./bot");
 const app = express();
 const PORT = 3000;
 
-// Cấu hình Session (Lưu trạng thái đăng nhập web)
+// Cấu hình Session
 app.use(session({
     secret: 'zalo-bot-secret-key-2026',
     resave: false,
     saveUninitialized: true,
-    cookie: { maxAge: 24 * 60 * 60 * 1000 } // Đăng nhập có hiệu lực 1 ngày
+    cookie: { maxAge: 24 * 60 * 60 * 1000 }
 }));
 
 app.use(express.json());
-app.use(express.static(path.join(__dirname, "public")));
+
+// --- THAY ĐỔI Ở ĐÂY ---
+// Trả file index.html khi truy cập trang chủ
+app.get("/", (req, res) => {
+    res.sendFile(path.join(__dirname, "index.html"));
+});
+// ----------------------
 
 // Middleware kiểm tra đăng nhập
 const requireLogin = (req, res, next) => {
@@ -26,7 +32,6 @@ const requireLogin = (req, res, next) => {
 // API Đăng nhập
 app.post("/api/login", (req, res) => {
     const { username, password } = req.body;
-    // Tài khoản mặc định: admin / admin123
     if (username === "admin" && password === "admin123") {
         req.session.loggedIn = true;
         res.json({ success: true });
@@ -35,7 +40,7 @@ app.post("/api/login", (req, res) => {
     }
 });
 
-// API Lấy trạng thái Bot và QR Code
+// API Lấy trạng thái Bot
 app.get("/api/status", requireLogin, (req, res) => {
     res.json({
         status: bot.getStatus(),
@@ -43,7 +48,7 @@ app.get("/api/status", requireLogin, (req, res) => {
     });
 });
 
-// API Khởi động Bot (Nếu bot đang tắt)
+// API Khởi động Bot
 app.post("/api/start", requireLogin, (req, res) => {
     if (bot.getStatus() === "offline") {
         bot.startBot();
@@ -56,6 +61,5 @@ app.post("/api/start", requireLogin, (req, res) => {
 // Khởi động Web Server
 app.listen(PORT, () => {
     console.log(`🌐 Web Dashboard đang chạy tại: http://localhost:${PORT}`);
-    // Tự động chạy bot khi khởi động web
     bot.startBot();
 });
