@@ -1,1 +1,14 @@
-q
+{
+  "name": "zalo-bot-dashboard",
+  "version": "1.0.0",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "express-session": "^1.17.3",
+    "qrcode": "^1.5.3",
+    "zalo-personal-sdk": "^1.0.0"
+  }
+}
